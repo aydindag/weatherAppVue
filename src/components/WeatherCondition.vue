@@ -2,10 +2,9 @@
   <div class="grid">
     <div class="col-12">
       <div class="card">
-        <h5>Advanced</h5>
         <div class="p-fluid formgrid grid">
           <div class="field col-12 md:col-3">
-            <label for="state">State</label>
+            <label for="state">Choose a city</label>
             <Dropdown
               id="state"
               v-model="dropdowncity"
@@ -23,42 +22,32 @@
               iconPos="right"
             />
           </div>
-          <div class="col-12 field">
-            <div class="col-12 md:col-3">
-              <label for="zip">Zip</label>
-              <InputText id="zip" type="text" />
-            </div>
-          </div>
         </div>
         <h5>City Weather</h5>
-        <Carousel :value="products">
-          <template #item="product">
-            <div class="product-item">
-              <div class="product-item-content">
-                <div class="mb-3">
-                  <img
-                    :src="'images/product/' + product.data.image"
-                    :alt="product.data.name"
-                    class="product-image"
-                  />
-                </div>
-                <div>
-                  <h4 class="mb-1">
-                    {{ product.data.name }}
-                  </h4>
-                  <h6 class="mt-0 mb-3">${{ product.data.price }}</h6>
-                  <span
-                    :class="
-                      'product-badge status-' +
-                      product.data.inventoryStatus.toLowerCase()
-                    "
-                    >{{ product.data.inventoryStatus }}</span
-                  >
-                </div>
+        <div class="col-62 lg:col-12 xl:col-3">
+          <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+              <div>
+                <span class="block text-500 font-medium mb-3">Orders</span>
+                <div class="text-900 font-medium text-xl">152</div>
+              </div>
+              <div
+                class="
+                  flex
+                  align-items-center
+                  justify-content-center
+                  bg-blue-100
+                  border-round
+                "
+                style="width: 2.5rem; height: 2.5rem"
+              >
+                <i class="pi pi-shopping-cart text-blue-500 text-xl"></i>
               </div>
             </div>
-          </template>
-        </Carousel>
+            <span class="text-green-500 font-medium">24 new </span>
+            <span class="text-500">since last visit</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -72,6 +61,24 @@ import cityService from "../service/CityService";
 export default {
   data() {
     return {
+      desserts: [
+        {
+          name: "Frozen Yogurt",
+          calories: 159,
+        },
+        {
+          name: "Ice cream sandwich",
+          calories: 237,
+        },
+        {
+          name: "Eclair",
+          calories: 262,
+        },
+        {
+          name: "Cupcake",
+          calories: 305,
+        },
+      ],
       dropdownItems: [
         { name: "Option 1", code: "Option 1" },
         { name: "Option 2", code: "Option 2" },

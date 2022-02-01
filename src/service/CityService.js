@@ -13,7 +13,7 @@ class CityService{
     }
 
     deleteCity(data){
-        return axios.delete(this.CITY_SERVICE_URL + "delete/" , data);
+        return axios.delete(this.CITY_SERVICE_URL + "delete/" + data);
     }
 
     updateCity(data){

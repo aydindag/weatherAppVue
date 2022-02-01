@@ -5,36 +5,45 @@
         <h5>New User</h5>
         <div class="p-fluid formgrid grid">
           <div class="field col-12 md:col-6">
-            <label for="firstname2">Firstname</label>
-            <InputText id="firstname2" type="text" />
+            <label for="firstName">Firstname</label>
+            <InputText
+              id="firstName"
+              v-model="user.firstName"
+              style=""
+              type="text"
+            />
           </div>
           <div class="field col-12 md:col-6">
-            <label for="lastname2">Lastname</label>
-            <InputText id="lastname2" type="text" />
+            <label for="lastName">Lastname</label>
+            <InputText
+              id="lastName"
+              v-model="user.lastName"
+              style=""
+              type="text"
+            />
           </div>
           <div class="field col-12 md:col-6">
-            <label for="city">Email</label>
-            <InputText id="city" type="text" />
+            <label for="email">Email</label>
+            <InputText id="email" v-model="user.email" type="text" />
           </div>
           <div class="field col-12 md:col-6">
-            <label for="city">Password</label>
-            <InputText id="city" type="text" />
+            <label for="password">Password</label>
+            <InputText id="password" v-model="user.password" type="text" />
           </div>
           <div class="field col-12 md:col-3">
-            <label for="state">Role</label>
+            <label for="isAdmin">Role</label>
             <div class="field-checkbox mb-0">
-              <Checkbox
-                id="checkOption1"
-                name="option"
-                value="Chicago"
-                v-model="checkboxValue"
-              />
-              <label for="checkOption1">Admin</label>
+              <Checkbox id="isAdmin" name="option" v-model="user.isAdmin" />
+              <label for="isAdmin">Admin</label>
             </div>
           </div>
           <div class="field col-12 md:col-3">
-            <label for="add"> </label>
-            <Button label="Add User" class="p-button-raised mr-2 mb-2" />
+            <label for="Add User"> </label>
+            <Button
+              label="Add User"
+              class="p-button-raised mr-2 mb-2"
+              @click="saveUser"
+            />
           </div>
         </div>
       </div>
@@ -66,7 +75,7 @@
                 </span>
               </div>
             </template>
-            <template #empty> No customers found. </template>
+            <template #empty> There is no user. </template>
             <template #loading> Loading customers data. Please wait. </template>
             <Column field="firstName" header="Name" style="min-width: 12rem">
               <template #body="{ data }">
@@ -85,7 +94,7 @@
             </Column>
             <Column field="admin" header="Role" style="min-width: 12rem">
               <template #body="{ data }">
-                {{ data.admin ? "ADMIN" : "KULLANICI" }}
+                {{ data.admin ? "ADMIN" : "USER" }}
               </template>
             </Column>
             <Column field="Delete,UPDATE" header="" style="min-width: 12rem">
@@ -93,12 +102,12 @@
                 <Button
                   icon="pi pi-pencil"
                   class="p-button-rounded p-button-success mr-2"
-                  @click="editProduct(slotProps.data)"
+                  @click="editUser(slotProps.data)"
                 />
                 <Button
                   icon="pi pi-trash"
                   class="p-button-rounded p-button-danger mt-2"
-                  @click="confirmDeleteProduct(slotProps.data)"
+                  @click="confirmDeleteUser(slotProps.data)"
                 />
               </template>
             </Column>
@@ -114,12 +123,12 @@
               <label for="name">Name</label>
               <InputText
                 id="name"
-                v-model.trim="user.firstName"
+                v-model.trim="updateUser.firstName"
                 required="true"
                 autofocus
-                :class="{ 'p-invalid': submitted && !user.firstName }"
+                :class="{ 'p-invalid': submitted && !updateUser.firstName }"
               />
-              <small class="p-invalid" v-if="submitted && !user.firstName"
+              <small class="p-invalid" v-if="submitted && !updateUser.firstName"
                 >Name is required.</small
               >
             </div>
@@ -127,14 +136,29 @@
               <label for="lastName">Last Name</label>
               <InputText
                 id="lastName"
-                v-model="user.lastName"
+                v-model="updateUser.lastName"
                 required="true"
+                autofocus
+                :class="{ 'p-invalid': submitted && !updateUser.lastName }"
               />
+              <small class="p-invalid" v-if="submitted && !updateUser.lastName"
+                >Last Name is required.</small
+              >
             </div>
 
             <div class="field">
               <label for="email" class="mb-3">Email</label>
-              <InputText id="email" v-model="user.email" required="true" />
+              <InputText
+                id="email"
+                v-model="user.email"
+                required="true"
+                autofocus
+                :class="{ 'p-invalid': submitted && !updateUser.email }"
+              />
+              <small class="p-invalid" v-if="submitted && !updateUser.email"
+                >Email is required.</small
+              >
+              />
             </div>
 
             <div class="field">
@@ -147,6 +171,16 @@
                       name="option"
                       value="Chicago"
                       v-model="checkboxValue2"
+                      autofocus
+                      :class="{
+                        'p-invalid': submitted && !updateUser.isAdmin,
+                      }"
+                    />
+                    <small
+                      class="p-invalid"
+                      v-if="submitted && !updateUser.isAdmin"
+                      >Last Name is required.</small
+                    >
                     />
                     <label for="checkOption1">Admin</label>
                   </div>
@@ -164,7 +198,38 @@
                 label="Save"
                 icon="pi pi-check"
                 class="p-button-text"
-                @click="saveProduct"
+                @click="onClickUpdateUser"
+              />
+            </template>
+          </Dialog>
+          <Dialog
+            v-model:visible="deleteUserDialog"
+            :style="{ width: '450px' }"
+            header="Confirm"
+            :modal="true"
+          >
+            <div class="flex align-items-center justify-content-center">
+              <i
+                class="pi pi-exclamation-triangle mr-3"
+                style="font-size: 2rem"
+              />
+              <span v-if="updateUser"
+                >Are you sure you want to delete <b>{{ updateUser.email }}</b
+                >?</span
+              >
+            </div>
+            <template #footer>
+              <Button
+                label="No"
+                icon="pi pi-times"
+                class="p-button-text"
+                @click="deleteUserDialog = false"
+              />
+              <Button
+                label="Yes"
+                icon="pi pi-check"
+                class="p-button-text"
+                @click="deleteUser"
               />
             </template>
           </Dialog>
@@ -177,42 +242,37 @@
 <script>
 import userService from "../service/UserService";
 import { FilterMatchMode, FilterOperator } from "primevue/api";
-import CustomerService from "../service/CustomerService";
-import ProductService from "../service/ProductService";
 export default {
   data() {
     return {
-      dropdownItems: [
-        { name: "Option 1", code: "Option 1" },
-        { name: "Option 2", code: "Option 2" },
-        { name: "Option 3", code: "Option 3" },
-      ],
-      dropdownItem: null,
-      customer1: null,
-      customer2: null,
-      customer3: null,
+      user: {
+        userId: null,
+        firstName: "",
+        lastName: "",
+        email: "",
+        isAdmin: "false",
+        password: null,
+      },
+      users: null,
+      updateUser: {
+        userId: null,
+        firstName: "",
+        lastName: "",
+        email: "",
+        isAdmin: "false",
+        password: null,
+      },
+      userDialog: false,
+      deleteUserDialog: false,
       filters1: null,
       filters2: {},
       loading1: true,
       loading2: true,
       idFrozen: false,
-      products: null,
-      users: null,
-      user: {},
-      userDialog: false,
-      deleteUserDialog: false,
-      deleteUsersDialog: false,
-      checkboxValue: [],
-      checkboxValue2: [],
       expandedRows: [],
     };
   },
-
-  customerService: null,
-  productService: null,
   created() {
-    this.customerService = new CustomerService();
-    this.productService = new ProductService();
     this.initFilters1();
     var data = null;
 
@@ -223,22 +283,6 @@ export default {
       this.users = response.data.data;
       this.loading1 = false;
     });
-    /* this.productService
-      .getProductsWithOrdersSmall()
-      .then((data) => (this.products = data));
-    this.customerService.getCustomersLarge().then((data) => {
-      this.customer1 = data;
-      this.loading1 = false;
-      this.customer1.forEach(
-        (customer) => (customer.date = new Date(customer.date))
-      );
-    });
-    this.customerService
-      .getCustomersLarge()
-      .then((data) => (this.customer2 = data));
-    this.customerService
-      .getCustomersMedium()
-      .then((data) => (this.customer3 = data)); */
   },
   methods: {
     initFilters1() {
@@ -274,63 +318,114 @@ export default {
       };
     },
     hideDialog() {
-      this.productDialog = false;
       this.submitted = false;
     },
-    saveProduct() {
+    saveUser() {
       this.submitted = true;
-      if (this.product.name.trim()) {
-        if (this.product.id) {
-          this.product.inventoryStatus = this.product.inventoryStatus.value
-            ? this.product.inventoryStatus.value
-            : this.product.inventoryStatus;
-          this.products[this.findIndexById(this.product.id)] = this.product;
-          this.$toast.add({
-            severity: "success",
-            summary: "Successful",
-            detail: "Product Updated",
-            life: 3000,
-          });
-        } else {
-          this.product.id = this.createId();
-          this.product.code = this.createId();
-          this.product.image = "product-placeholder.svg";
-          this.product.inventoryStatus = this.product.inventoryStatus
-            ? this.product.inventoryStatus.value
-            : "INSTOCK";
-          this.products.push(this.product);
-          this.$toast.add({
-            severity: "success",
-            summary: "Successful",
-            detail: "Product Created",
-            life: 3000,
-          });
-        }
-        this.productDialog = false;
-        this.product = {};
+      var _user = { ...this.user };
+      if (this.user.firstName) {
+        userService.addUser(this.user).then((response) => {
+          if (response.data.success) {
+            this.users.push(_user);
+            this.$toast.add({
+              severity: "success",
+              summary: "Successful",
+              detail: "User Inserted",
+              life: 3000,
+            });
+          }
+        });
+        this.clear();
+      } else {
+        this.$toast.add({
+          severity: "warning",
+          summary: "Warning",
+          detail: "Please fill the User Name",
+          life: 3000,
+        });
       }
     },
+    onClickUpdateUser() {
+      this.submitted = true;
+      var _updateUser = { ...this.updateUser };
+      if (this.updateUser.firstName) {
+        userService.updateUser(this.updateUser).then((response) => {
+          if (response.data.success) {
+            this.users[this.findIndexById(_updateUser.userId)] = _updateUser;
+            this.$toast.add({
+              severity: "success",
+              summary: "Successful",
+              detail: "User Updated",
+              life: 3000,
+            });
+          }
+        });
+      } else {
+        this.$toast.add({
+          severity: "warning",
+          summary: "Warning",
+          detail: "Please fill the City Name",
+          life: 3000,
+        });
+      }
+      this.userDialog = false;
+      this.updateUser = {};
+    },
     editProduct(user) {
-      this.user = { ...user };
+      this.updateUser = { ...user };
       this.userDialog = true;
     },
     confirmDeleteProduct(user) {
-      this.user = user;
+      this.updateUser = user;
       this.deleteUserDialog = true;
     },
-    deleteProduct() {
-      this.users = this.users.filter((val) => val.id !== this.user.id);
-      this.deleteUserDialog = false;
-      this.user = {};
-      this.$toast.add({
-        severity: "success",
-        summary: "Successful",
-        detail: "Product Deleted",
-        life: 3000,
+    deleteCity() {
+      var _deleteUserRequest = {};
+      _deleteUserRequest["userId"] = this.updateUser.userId;
+      userService.deleteUser(_deleteUserRequest.userId).then((response) => {
+        if (response.data.success) {
+          this.cities.splice(this.findIndexById(_deleteUserRequest.userId), 1);
+          this.$toast.add({
+            severity: "success",
+            summary: "Successful",
+            detail: "User Deleted",
+            life: 3000,
+          });
+        } else {
+          this.$toast.add({
+            severity: "error",
+            summary: "Error",
+            detail: "Error While User Delete",
+            life: 3000,
+          });
+        }
       });
+      this.deleteUserDialog = false;
+      this.updateUser = {};
     },
     clearFilter1() {
       this.initFilters1();
+    },
+    clear() {
+      this.user = {
+        userId: null,
+        firstName: "",
+        lastName: "",
+        email: "",
+        isAdmin: "false",
+        password: null,
+      };
+      this.updateUser = {};
+    },
+    findIndexById(id) {
+      let index = -1;
+      for (let i = 0; i < this.users.length; i++) {
+        if (this.users[i].userId === id) {
+          index = i;
+          break;
+        }
+      }
+      return index;
     },
     expandAll() {
       this.expandedRows = this.products.filter((p) => p.id);

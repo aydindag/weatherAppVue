@@ -1,16 +1,26 @@
 <template>
+  <Toast />
   <div class="grid">
     <div class="col-12">
       <div class="card">
         <h5>New City</h5>
         <div class="p-fluid formgrid grid">
           <div class="field col-12 md:col-6">
-            <label for="firstname2">City Name</label>
-            <InputText id="firstname2" style="" type="text" />
+            <label for="cityName">City Name</label>
+            <InputText
+              id="cityName"
+              v-model="city.cityName"
+              style=""
+              type="text"
+            />
           </div>
 
           <div class="field col-12 md:col-3" style="margin-top: 23px">
-            <Button label="Add City" class="p-button-raised mr-2 mb-2" />
+            <Button
+              label="Add City"
+              class="p-button-raised mr-2 mb-2"
+              @click="saveCity"
+            />
           </div>
         </div>
       </div>
@@ -18,7 +28,7 @@
         <div class="card">
           <h5>City List</h5>
           <DataTable
-            :value="users"
+            :value="cities"
             :paginator="true"
             class="p-datatable-gridlines"
             :rows="10"
@@ -42,15 +52,15 @@
                 </span>
               </div>
             </template>
-            <template #empty> No customers found. </template>
-            <template #loading> Loading customers data. Please wait. </template>
+            <template #empty>There is no city. </template>
+            <template #loading> Loading cities data. Please wait. </template>
             <Column
               field="cityName"
               header="City Name"
               style="min-width: 65rem"
             >
               <template #body="{ data }">
-                {{ data.citytName }}
+                {{ data.cityName }}
               </template>
             </Column>
 
@@ -59,66 +69,37 @@
                 <Button
                   icon="pi pi-pencil"
                   class="p-button-rounded p-button-success mr-2"
-                  @click="editProduct(slotProps.data)"
+                  @click="editCity(slotProps.data)"
                 />
                 <Button
                   icon="pi pi-trash"
                   class="p-button-rounded p-button-danger mt-2"
-                  @click="confirmDeleteProduct(slotProps.data)"
+                  @click="confirmDeleteCity(slotProps.data)"
                 />
               </template>
             </Column>
           </DataTable>
           <Dialog
-            v-model:visible="userDialog"
+            v-model:visible="cityDialog"
             :style="{ width: '450px' }"
-            header="User Details"
+            header="City Details"
             :modal="true"
             class="p-fluid"
           >
             <div class="field">
-              <label for="name">Name</label>
+              <label for="name">City Name</label>
               <InputText
                 id="name"
-                v-model.trim="user.firstName"
+                v-model.trim="updateCity.cityName"
                 required="true"
                 autofocus
-                :class="{ 'p-invalid': submitted && !user.firstName }"
+                :class="{ 'p-invalid': submitted && !updateCity.cityName }"
               />
-              <small class="p-invalid" v-if="submitted && !user.firstName"
-                >Name is required.</small
+              <small class="p-invalid" v-if="submitted && !updateCity.cityName"
+                >City is required.</small
               >
             </div>
-            <div class="field">
-              <label for="lastName">Last Name</label>
-              <InputText
-                id="lastName"
-                v-model="user.lastName"
-                required="true"
-              />
-            </div>
 
-            <div class="field">
-              <label for="email" class="mb-3">Email</label>
-              <InputText id="email" v-model="user.email" required="true" />
-            </div>
-
-            <div class="field">
-              <label class="mb-3">Role</label>
-              <div class="formgrid grid">
-                <div class="field-radiobutton col-6">
-                  <div class="field-checkbox mb-0">
-                    <Checkbox
-                      id="checkOption1"
-                      name="option"
-                      value="Chicago"
-                      v-model="checkboxValue2"
-                    />
-                    <label for="checkOption1">Admin</label>
-                  </div>
-                </div>
-              </div>
-            </div>
             <template #footer>
               <Button
                 label="Cancel"
@@ -130,7 +111,39 @@
                 label="Save"
                 icon="pi pi-check"
                 class="p-button-text"
-                @click="saveProduct"
+                @click="onClickUpdateCity"
+              />
+            </template>
+          </Dialog>
+
+          <Dialog
+            v-model:visible="deleteCityDialog"
+            :style="{ width: '450px' }"
+            header="Confirm"
+            :modal="true"
+          >
+            <div class="flex align-items-center justify-content-center">
+              <i
+                class="pi pi-exclamation-triangle mr-3"
+                style="font-size: 2rem"
+              />
+              <span v-if="updateCity"
+                >Are you sure you want to delete <b>{{ updateCity.cityName }}</b
+                >?</span
+              >
+            </div>
+            <template #footer>
+              <Button
+                label="No"
+                icon="pi pi-times"
+                class="p-button-text"
+                @click="deleteCityDialog = false"
+              />
+              <Button
+                label="Yes"
+                icon="pi pi-check"
+                class="p-button-text"
+                @click="deleteCity"
               />
             </template>
           </Dialog>
@@ -141,70 +154,42 @@
 </template>
 
 <script>
-import userService from "../service/UserService";
+import cityService from "../service/CityService";
 import { FilterMatchMode, FilterOperator } from "primevue/api";
-import CustomerService from "../service/CustomerService";
-import ProductService from "../service/ProductService";
 export default {
   data() {
     return {
-      dropdownItems: [
-        { name: "Option 1", code: "Option 1" },
-        { name: "Option 2", code: "Option 2" },
-        { name: "Option 3", code: "Option 3" },
-      ],
-      dropdownItem: null,
-      customer1: null,
-      customer2: null,
-      customer3: null,
+      city: {
+        cityId: null,
+        cityName: "",
+      },
+      cities: null,
+      updateCity: {
+        cityId: null,
+        cityName: "",
+      },
+      cityDialog: false,
+      deleteCityDialog: false,
       filters1: null,
       filters2: {},
       loading1: true,
       loading2: true,
       idFrozen: false,
-      products: null,
-      users: null,
-      user: {},
-      userDialog: false,
-      deleteUserDialog: false,
-      deleteUsersDialog: false,
-      checkboxValue: [],
-      checkboxValue2: [],
       expandedRows: [],
     };
   },
 
-  customerService: null,
-  productService: null,
   created() {
-    this.customerService = new CustomerService();
-    this.productService = new ProductService();
     this.initFilters1();
     var data = null;
 
     console.log(data);
   },
   mounted() {
-    userService.getUserList().then((response) => {
-      this.users = response.data.data;
+    cityService.getCityList().then((response) => {
+      this.cities = response.data.data;
       this.loading1 = false;
     });
-    /* this.productService
-      .getProductsWithOrdersSmall()
-      .then((data) => (this.products = data));
-    this.customerService.getCustomersLarge().then((data) => {
-      this.customer1 = data;
-      this.loading1 = false;
-      this.customer1.forEach(
-        (customer) => (customer.date = new Date(customer.date))
-      );
-    });
-    this.customerService
-      .getCustomersLarge()
-      .then((data) => (this.customer2 = data));
-    this.customerService
-      .getCustomersMedium()
-      .then((data) => (this.customer3 = data)); */
   },
   methods: {
     initFilters1() {
@@ -216,7 +201,7 @@ export default {
             { value: null, matchMode: FilterMatchMode.STARTS_WITH },
           ],
         },
-        "country.name": {
+        "city.cityName": {
           operator: FilterOperator.AND,
           constraints: [
             { value: null, matchMode: FilterMatchMode.STARTS_WITH },
@@ -240,63 +225,110 @@ export default {
       };
     },
     hideDialog() {
-      this.productDialog = false;
       this.submitted = false;
     },
-    saveProduct() {
+    saveCity() {
       this.submitted = true;
-      if (this.product.name.trim()) {
-        if (this.product.id) {
-          this.product.inventoryStatus = this.product.inventoryStatus.value
-            ? this.product.inventoryStatus.value
-            : this.product.inventoryStatus;
-          this.products[this.findIndexById(this.product.id)] = this.product;
+      var _city = { ...this.city };
+      if (this.city.cityName) {
+        cityService.addCity(this.city).then((response) => {
+          if (response.data.success) {
+            this.cities.push(_city);
+            this.$toast.add({
+              severity: "success",
+              summary: "Successful",
+              detail: "City Inserted",
+              life: 3000,
+            });
+          }
+        });
+        this.clear();
+      } else {
+        this.$toast.add({
+          severity: "warning",
+          summary: "Warning",
+          detail: "Please fill the City Name",
+          life: 3000,
+        });
+      }
+    },
+    onClickUpdateCity() {
+      this.submitted = true;
+      var _updateCity = { ...this.updateCity };
+      if (this.updateCity.cityName) {
+        cityService.updateCity(this.updateCity).then((response) => {
+          if (response.data.success) {
+            this.cities[this.findIndexById(_updateCity.cityId)] = _updateCity;
+            this.$toast.add({
+              severity: "success",
+              summary: "Successful",
+              detail: "City Updated",
+              life: 3000,
+            });
+          }
+        });
+      } else {
+        this.$toast.add({
+          severity: "warning",
+          summary: "Warning",
+          detail: "Please fill the City Name",
+          life: 3000,
+        });
+      }
+      this.cityDialog = false;
+      this.updateCity = {};
+    },
+    editCity(city) {
+      this.updateCity = { ...city };
+      this.cityDialog = true;
+    },
+    confirmDeleteCity(city) {
+      this.updateCity = city;
+      this.deleteCityDialog = true;
+    },
+    deleteCity() {
+      var _deleteCityRequest = {};
+      _deleteCityRequest["cityId"] = this.updateCity.cityId;
+      cityService.deleteCity(_deleteCityRequest.cityId).then((response) => {
+        if (response.data.success) {
+          this.cities.splice(this.findIndexById(_deleteCityRequest.cityId), 1);
           this.$toast.add({
             severity: "success",
             summary: "Successful",
-            detail: "Product Updated",
+            detail: "City Deleted",
             life: 3000,
           });
         } else {
-          this.product.id = this.createId();
-          this.product.code = this.createId();
-          this.product.image = "product-placeholder.svg";
-          this.product.inventoryStatus = this.product.inventoryStatus
-            ? this.product.inventoryStatus.value
-            : "INSTOCK";
-          this.products.push(this.product);
           this.$toast.add({
-            severity: "success",
-            summary: "Successful",
-            detail: "Product Created",
+            severity: "error",
+            summary: "Error",
+            detail: "Error While City Delete",
             life: 3000,
           });
         }
-        this.productDialog = false;
-        this.product = {};
-      }
-    },
-    editProduct(user) {
-      this.user = { ...user };
-      this.userDialog = true;
-    },
-    confirmDeleteProduct(user) {
-      this.user = user;
-      this.deleteUserDialog = true;
-    },
-    deleteProduct() {
-      this.users = this.users.filter((val) => val.id !== this.user.id);
-      this.deleteUserDialog = false;
-      this.user = {};
-      this.$toast.add({
-        severity: "success",
-        summary: "Successful",
-        detail: "Product Deleted",
-        life: 3000,
       });
+      this.deleteCityDialog = false;
+      this.updateCity = {};
     },
     clearFilter1() {
       this.initFilters1();
+    },
+    clear() {
+      this.city = {
+        cityId: null,
+        cityName: "",
+      };
+      this.updateCity = {};
+    },
+    findIndexById(id) {
+      let index = -1;
+      for (let i = 0; i < this.cities.length; i++) {
+        if (this.cities[i].cityId === id) {
+          index = i;
+          break;
+        }
+      }
+      return index;
     },
     expandAll() {
       this.expandedRows = this.products.filter((p) => p.id);
