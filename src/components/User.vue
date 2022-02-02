@@ -33,7 +33,12 @@
           <div class="field col-12 md:col-3">
             <label for="isAdmin">Role</label>
             <div class="field-checkbox mb-0">
-              <Checkbox id="isAdmin" name="option" v-model="user.isAdmin" />
+              <Checkbox
+                id="isAdmin"
+                name="option"
+                :binary="true"
+                v-model="user.isAdmin"
+              />
               <label for="isAdmin">Admin</label>
             </div>
           </div>
@@ -94,7 +99,7 @@
             </Column>
             <Column field="admin" header="Role" style="min-width: 12rem">
               <template #body="{ data }">
-                {{ data.admin ? "ADMIN" : "USER" }}
+                {{ data.isAdmin ? "ADMIN" : "USER" }}
               </template>
             </Column>
             <Column field="Delete,UPDATE" header="" style="min-width: 12rem">
@@ -150,7 +155,7 @@
               <label for="email" class="mb-3">Email</label>
               <InputText
                 id="email"
-                v-model="user.email"
+                v-model="updateUser.email"
                 required="true"
                 autofocus
                 :class="{ 'p-invalid': submitted && !updateUser.email }"
@@ -158,7 +163,6 @@
               <small class="p-invalid" v-if="submitted && !updateUser.email"
                 >Email is required.</small
               >
-              />
             </div>
 
             <div class="field">
@@ -167,20 +171,14 @@
                 <div class="field-radiobutton col-6">
                   <div class="field-checkbox mb-0">
                     <Checkbox
-                      id="checkOption1"
+                      id="admin1"
                       name="option"
-                      value="Chicago"
-                      v-model="checkboxValue2"
+                      value="admin1"
+                      v-model="updateUser.isAdmin"
                       autofocus
                       :class="{
                         'p-invalid': submitted && !updateUser.isAdmin,
                       }"
-                    />
-                    <small
-                      class="p-invalid"
-                      v-if="submitted && !updateUser.isAdmin"
-                      >Last Name is required.</small
-                    >
                     />
                     <label for="checkOption1">Admin</label>
                   </div>
@@ -259,7 +257,7 @@ export default {
         firstName: "",
         lastName: "",
         email: "",
-        isAdmin: "false",
+        isAdmin: "",
         password: null,
       },
       userDialog: false,
@@ -324,7 +322,7 @@ export default {
       this.submitted = true;
       var _user = { ...this.user };
       if (this.user.firstName) {
-        userService.addUser(this.user).then((response) => {
+        userService.addUser(_user).then((response) => {
           if (response.data.success) {
             this.users.push(_user);
             this.$toast.add({
@@ -344,6 +342,7 @@ export default {
           life: 3000,
         });
       }
+      this.submitted = false;
     },
     onClickUpdateUser() {
       this.submitted = true;
@@ -371,20 +370,19 @@ export default {
       this.userDialog = false;
       this.updateUser = {};
     },
-    editProduct(user) {
+    editUser(user) {
       this.updateUser = { ...user };
       this.userDialog = true;
     },
-    confirmDeleteProduct(user) {
+    confirmDeleteUser(user) {
       this.updateUser = user;
       this.deleteUserDialog = true;
     },
-    deleteCity() {
-      var _deleteUserRequest = {};
-      _deleteUserRequest["userId"] = this.updateUser.userId;
-      userService.deleteUser(_deleteUserRequest.userId).then((response) => {
+    deleteUser() {
+      var _deleteUserRequest = { ...this.updateUser };
+      userService.deleteUser(_deleteUserRequest).then((response) => {
         if (response.data.success) {
-          this.cities.splice(this.findIndexById(_deleteUserRequest.userId), 1);
+          this.users.splice(this.findIndexById(_deleteUserRequest.userId), 1);
           this.$toast.add({
             severity: "success",
             summary: "Successful",
