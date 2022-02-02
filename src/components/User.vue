@@ -322,7 +322,7 @@ export default {
       this.submitted = true;
       var _user = { ...this.user };
       if (this.user.firstName) {
-        userService.addUser(_user).then((response) => {
+        userService.addUser(this.user).then((response) => {
           if (response.data.success) {
             this.users.push(_user);
             this.$toast.add({
@@ -379,8 +379,9 @@ export default {
       this.deleteUserDialog = true;
     },
     deleteUser() {
-      var _deleteUserRequest = { ...this.updateUser };
-      userService.deleteUser(_deleteUserRequest).then((response) => {
+      var _deleteUserRequest = {};
+      _deleteUserRequest["userId"] = this.updateUser.userId;
+      userService.deleteUser(_deleteUserRequest.userId).then((response) => {
         if (response.data.success) {
           this.users.splice(this.findIndexById(_deleteUserRequest.userId), 1);
           this.$toast.add({

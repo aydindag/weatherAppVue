@@ -8,7 +8,7 @@
             <label for="state">User</label>
             <Dropdown
               id="user"
-              v-model="dropdownuser"
+              v-model="weatherData.user"
               :options="dropdownusers"
               optionLabel="name"
               placeholder="Select One"
@@ -17,8 +17,8 @@
           <div class="field col-12 md:col-3">
             <label for="state">City</label>
             <Dropdown
-              id="user"
-              v-model="dropdowncity"
+              id="city"
+              v-model="weatherData.city"
               :options="dropdowncities"
               optionLabel="name"
               placeholder="Select One"
@@ -30,7 +30,8 @@
             <Calendar
               :showIcon="true"
               :showButtonBar="true"
-              v-model="startDate"
+              v-model="weatherData.startDate"
+              dateFormat="dd.mm.yy"
             ></Calendar>
           </div>
           <div class="field col-12 md:col-3">
@@ -38,7 +39,8 @@
             <Calendar
               :showIcon="true"
               :showButtonBar="true"
-              v-model="endDate"
+              v-model="weatherData.endDate"
+              dateFormat="dd.mm.yy"
             ></Calendar>
           </div>
           <div class="field col-12 md:col-3" style="margin-top: 23px">
@@ -48,9 +50,66 @@
               label="Search"
               icon="pi pi-search"
               iconPos="right"
+              @click="searchReport"
             />
           </div>
         </div>
+      </div>
+    </div>
+    <div class="col-12">
+      <div class="card">
+        <h5>Weather Report List</h5>
+        <DataTable
+          :value="getWeatherReports"
+          :paginator="true"
+          class="p-datatable-gridlines"
+          :rows="10"
+          dataKey="id"
+          :rowHover="true"
+          v-model:filters="filters1"
+          filterDisplay="menu"
+          :loading="loading1"
+          :filters="filters1"
+          responsiveLayout="scroll"
+        >
+          <template #empty> There is no user. </template>
+          <template #loading> Loading customers data. Please wait. </template>
+          <Column field="firstName" header="Name" style="min-width: 12rem">
+            <template #body="{ data }">
+              {{ data.user?.firstName ? data.user.firstName : "" }}
+            </template>
+          </Column>
+          <Column field="lastName" header="Surname" style="min-width: 12rem">
+            <template #body="{ data }">
+              {{ data.user?.lastName ? data.user.lastName : "" }}
+            </template>
+          </Column>
+          <Column field="cityName" header="CityName" style="min-width: 12rem">
+            <template #body="{ data }">
+              {{ data.city.cityName }}
+            </template>
+          </Column>
+          <Column field="queryTime" header="queryTime" style="min-width: 12rem">
+            <template #body="{ data }">
+              {{ data.queryTime + " ms" }}
+            </template>
+          </Column>
+          <Column field="ipAddress" header="ipAddress" style="min-width: 12rem">
+            <template #body="{ data }">
+              {{ data.ipAddress }}
+            </template>
+          </Column>
+          <Column field="queryDate" header="queryDate" style="min-width: 12rem">
+            <template #body="{ data }">
+              {{ formatDate(data.queryDate) }}
+            </template>
+          </Column>
+          <Column field="admin" header="Role" style="min-width: 12rem">
+            <template #body="{ data }">
+              {{ data.queryTime }}
+            </template>
+          </Column>
+        </DataTable>
       </div>
     </div>
   </div>
@@ -61,14 +120,18 @@ import ProductService from "../service/ProductService";
 import PhotoService from "../service/PhotoService";
 import weatherReportService from "../service/WeatherReportService";
 import cityService from "../service/CityService";
+import userService from "../service/UserService";
+import moment from "moment";
 export default {
   data() {
     return {
-      dropdownItems: [
-        { name: "Option 1", code: "Option 1" },
-        { name: "Option 2", code: "Option 2" },
-        { name: "Option 3", code: "Option 3" },
-      ],
+      weatherData: {
+        user: {},
+        city: {},
+        startDate: "",
+        endDate: "",
+      },
+      getWeatherReports: [],
       startDate: null,
       endDate: null,
       dropdowncity: null,
@@ -108,6 +171,15 @@ export default {
     this.photoService = new PhotoService();
   },
   mounted() {
+    userService.getUserList().then((response) => {
+      let data = response.data.data.map((x) => {
+        let newObj = {};
+        newObj["name"] = x.firstName + " " + x.lastName;
+        newObj["code"] = x.userId;
+        return newObj;
+      });
+      this.dropdownusers = data;
+    });
     cityService.getCityList().then((response) => {
       if (response.data.data != null) {
         let data = response.data.data.map((x) => {
@@ -130,6 +202,25 @@ export default {
     });
   },
   methods: {
+    formatDate(date) {
+      if (date) return moment(date).format("DD.MM.YYYY");
+      return;
+    },
+    searchReport() {
+      var _request = {};
+      _request.cityName = this.weatherData.city.code;
+      _request.userId = this.weatherData.user.code;
+      _request.endDate = this.weatherData.endDate;
+      _request.startDate = this.weatherData.startDate;
+      debugger;
+      weatherReportService
+        .getWeatherReportsWithFilter(_request)
+        .then((response) => {
+          if (response.data.data && response.data.success) {
+            this.getWeatherReports = response.data.data;
+          }
+        });
+    },
     editProduct(weatherReport) {
       this.weatherReport = { weatherReport };
       this.weatherReportDialog = true;

@@ -13,7 +13,7 @@ class UserService {
     }
     
     deleteUser(data){
-        return axios.post(this.USER_SERVICE_URL + "delete/" , data);
+        return axios.delete(this.USER_SERVICE_URL + "delete/" + data);
     }
 
     updateUser(data){
