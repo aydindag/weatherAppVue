@@ -229,11 +229,10 @@ export default {
     },
     saveCity() {
       this.submitted = true;
-      var _city = { ...this.city };
       if (this.city.cityName) {
         cityService.addCity(this.city).then((response) => {
           if (response.data.success) {
-            this.cities.push(_city);
+            this.cities.push(response.data.data);
             this.$toast.add({
               severity: "success",
               summary: "Successful",

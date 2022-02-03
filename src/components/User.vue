@@ -320,11 +320,10 @@ export default {
     },
     saveUser() {
       this.submitted = true;
-      var _user = { ...this.user };
       if (this.user.firstName) {
         userService.addUser(this.user).then((response) => {
           if (response.data.success) {
-            this.users.push(_user);
+            this.users.push(response.data.data);
             this.$toast.add({
               severity: "success",
               summary: "Successful",

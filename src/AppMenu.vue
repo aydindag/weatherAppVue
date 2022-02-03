@@ -6,6 +6,9 @@
       :root="true"
       @menuitem-click="onMenuItemClick"
     />
+    <!-- <a href="https://www.primefaces.org/primeblocks-vue" class="block mt-3">
+      <img alt="primeblocks" :src="bannerImage()" class="w-full" />
+    </a> -->
   </div>
 </template>
 
