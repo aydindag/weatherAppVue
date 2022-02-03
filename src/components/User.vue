@@ -28,7 +28,7 @@
           </div>
           <div class="field col-12 md:col-6">
             <label for="password">Password</label>
-            <InputText id="password" v-model="user.password" type="text" />
+            <Password id="password" v-model="user.password" toggleMask />
           </div>
           <div class="field col-12 md:col-3">
             <label for="isAdmin">Role</label>
