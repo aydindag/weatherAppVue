@@ -26,22 +26,10 @@
     </button>
     <ul class="layout-topbar-menu hidden lg:flex origin-top">
       <li>
-        <button class="p-link layout-topbar-button">
-          <i class="pi pi-calendar"></i>
-          <span>Events</span>
-        </button>
-      </li>
-      <li>
-        <button class="p-link layout-topbar-button">
-          <i class="pi pi-cog"></i>
-          <span>Settings</span>
-        </button>
-      </li>
-      <li>
-        <button class="p-link layout-topbar-button">
-          <i class="pi pi-user"></i>
-          <span>Profile</span>
-        </button>
+        <Button class="p-link layout-topbar-button" @click="logout">
+          <i class="pi pi-sign-out"></i>
+          <span>Log Out</span>
+        </Button>
       </li>
     </ul>
   </div>
@@ -60,6 +48,10 @@ export default {
       return this.$appState.darkTheme
         ? "images/logo-white.svg"
         : "images/logo-dark.svg";
+    },
+    logout() {
+      localStorage.removeItem("user");
+      this.$router.push("/login");
     },
   },
   computed: {

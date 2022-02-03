@@ -173,9 +173,8 @@
                     <Checkbox
                       id="admin1"
                       name="option"
-                      value="admin1"
+                      :binary="true"
                       v-model="updateUser.isAdmin"
-                      autofocus
                       :class="{
                         'p-invalid': submitted && !updateUser.isAdmin,
                       }"
@@ -248,7 +247,7 @@ export default {
         firstName: "",
         lastName: "",
         email: "",
-        isAdmin: "false",
+        isAdmin: false,
         password: null,
       },
       users: null,
@@ -269,6 +268,11 @@ export default {
       idFrozen: false,
       expandedRows: [],
     };
+  },
+  computed: {
+    currentUser() {
+      return this.$store.state.auth.user;
+    },
   },
   created() {
     this.initFilters1();
@@ -319,6 +323,7 @@ export default {
       this.submitted = false;
     },
     saveUser() {
+      console.log(this.currentUser);
       this.submitted = true;
       if (this.user.firstName) {
         userService.addUser(this.user).then((response) => {
@@ -346,6 +351,7 @@ export default {
     onClickUpdateUser() {
       this.submitted = true;
       var _updateUser = { ...this.updateUser };
+      debugger;
       if (this.updateUser.firstName) {
         userService.updateUser(this.updateUser).then((response) => {
           if (response.data.success) {

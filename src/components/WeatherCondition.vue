@@ -126,6 +126,11 @@ export default {
       }
     });
   },
+  computed: {
+    currentUser() {
+      return this.$store.state.auth.user;
+    },
+  },
   methods: {
     listWeather() {
       weatherReportService.getWeatherReportList().then((response) => {
@@ -144,7 +149,7 @@ export default {
       if (this.dropdowncity) {
         var weatherReportsRequest = {};
         weatherReportsRequest.cityName = this.dropdowncity.name;
-        weatherReportsRequest.email = "";
+        weatherReportsRequest.email = this.currentUser.email;
         weatherReportService
           .addWeatherReport(weatherReportsRequest)
           .then((response) => {

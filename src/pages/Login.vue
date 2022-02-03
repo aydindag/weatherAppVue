@@ -66,22 +66,11 @@
               inputStyle="padding:1rem"
             ></Password>
 
-            <div class="flex align-items-center justify-content-between mb-5">
-              <div class="flex align-items-center">
-                <Checkbox
-                  id="rememberme1"
-                  :binary="true"
-                  class="mr-2"
-                ></Checkbox>
-                <label for="rememberme1">Remember me</label>
-              </div>
-              <a
-                class="font-medium no-underline ml-2 text-right cursor-pointer"
-                style="color: var(--primary-color)"
-                >Forgot password?</a
-              >
-            </div>
-            <Button label="Sign In" class="w-full p-3 text-xl"></Button>
+            <Button
+              label="Sign In"
+              class="w-full p-3 text-xl"
+              @click="login"
+            ></Button>
           </div>
         </div>
       </div>
@@ -90,12 +79,34 @@
 </template>
 
 <script>
+import loginService from "../service/LoginService";
 export default {
   data() {
     return {
       email: "",
       password: "",
     };
+  },
+  methods: {
+    login() {
+      if (this.email && this.password) {
+        var _req = {};
+        (_req.email = this.email), (_req.password = this.password);
+        this.$store.dispatch("auth/login", _req).then(
+          () => {
+            this.$router.push("/city");
+          },
+          (error) => {
+            console.log(error);
+          }
+        );
+        loginService.loginUser(_req).then((response) => {
+          if (response.data.success) {
+            localStorage.setItem("user", JSON.stringify(response.data.data));
+          }
+        });
+      }
+    },
   },
   computed: {
     logoColor() {

@@ -86,7 +86,7 @@
           </Column>
           <Column field="cityName" header="CityName" style="min-width: 12rem">
             <template #body="{ data }">
-              {{ data.city.cityName }}
+              {{ data.city?.cityName ? data.city.cityName : "" }}
             </template>
           </Column>
           <Column field="queryTime" header="queryTime" style="min-width: 12rem">
@@ -102,11 +102,6 @@
           <Column field="queryDate" header="queryDate" style="min-width: 12rem">
             <template #body="{ data }">
               {{ formatDate(data.queryDate) }}
-            </template>
-          </Column>
-          <Column field="admin" header="Role" style="min-width: 12rem">
-            <template #body="{ data }">
-              {{ data.queryTime }}
             </template>
           </Column>
         </DataTable>
