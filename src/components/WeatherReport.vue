@@ -111,8 +111,6 @@
 </template>
 
 <script>
-import ProductService from "../service/ProductService";
-import PhotoService from "../service/PhotoService";
 import weatherReportService from "../service/WeatherReportService";
 import cityService from "../service/CityService";
 import userService from "../service/UserService";
@@ -161,10 +159,7 @@ export default {
     };
   },
   weatherCondition: null,
-  created() {
-    this.productService = new ProductService();
-    this.photoService = new PhotoService();
-  },
+  created() {},
   mounted() {
     userService.getUserList().then((response) => {
       let data = response.data.data.map((x) => {
@@ -189,12 +184,6 @@ export default {
     weatherReportService.getWeatherReportList().then((response) => {
       this.weatherConditions = response.data.data;
     });
-    this.productService.getProductsSmall().then((products) => {
-      this.products = products;
-    });
-    this.photoService.getImages().then((images) => {
-      this.images = images;
-    });
   },
   methods: {
     formatDate(date) {
@@ -207,7 +196,7 @@ export default {
       _request.userId = this.weatherData.user.code;
       _request.endDate = this.weatherData.endDate;
       _request.startDate = this.weatherData.startDate;
-      debugger;
+
       weatherReportService
         .getWeatherReportsWithFilter(_request)
         .then((response) => {

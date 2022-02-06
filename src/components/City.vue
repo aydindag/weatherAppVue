@@ -181,9 +181,6 @@ export default {
 
   created() {
     this.initFilters1();
-    var data = null;
-
-    console.log(data);
   },
   mounted() {
     cityService.getCityList().then((response) => {

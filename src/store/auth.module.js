@@ -11,11 +11,11 @@ export const auth = {
   actions: {
     login({ commit }, user) {
       return loginService.loginUser(user).then(
-        user => {
-          if(user.data.success){
-            localStorage.setItem('user',JSON.stringify(user.data.data))
-             commit('loginSuccess', user.data.data);
-             return Promise.resolve(user.data.data);
+        response => {
+          if(response.data.success){
+            localStorage.setItem('user',JSON.stringify(response.data.data))
+             commit('loginSuccess', response.data.data);
+             return Promise.resolve(response.data.data);
           }
           return Promise.resolve(null);
         },

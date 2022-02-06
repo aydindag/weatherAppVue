@@ -50,7 +50,6 @@
 </template>
 
 <script>
-import PhotoService from "../service/PhotoService";
 import weatherReportService from "../service/WeatherReportService";
 import cityService from "../service/CityService";
 export default {
@@ -110,9 +109,7 @@ export default {
     };
   },
   weatherCondition: null,
-  created() {
-    this.photoService = new PhotoService();
-  },
+  created() {},
   mounted() {
     cityService.getCityList().then((response) => {
       if (response.data.data != null) {

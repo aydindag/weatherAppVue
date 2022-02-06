@@ -1,4 +1,5 @@
 <template>
+  <Toast />
   <div
     class="
       surface-card
@@ -63,6 +64,7 @@
               :toggleMask="true"
               class="w-full mb-3"
               inputClass="w-full"
+              :feedback="false"
               inputStyle="padding:1rem"
             ></Password>
 
@@ -79,7 +81,6 @@
 </template>
 
 <script>
-import loginService from "../service/LoginService";
 export default {
   data() {
     return {
@@ -90,20 +91,38 @@ export default {
   methods: {
     login() {
       if (this.email && this.password) {
-        var _req = {};
-        (_req.email = this.email), (_req.password = this.password);
-        this.$store.dispatch("auth/login", _req).then(
-          () => {
-            this.$router.push("/city");
+        var requestLogin = {};
+        (requestLogin.email = this.email),
+          (requestLogin.password = this.password);
+        this.$store.dispatch("auth/login", requestLogin).then(
+          (response) => {
+            if (response) {
+              this.$toast.add({
+                severity: "success",
+                summary: "Successful",
+                detail: "Login successfuly",
+                life: 3000,
+              });
+              this.$router.push("/weatherCondition");
+            } else {
+              this.$toast.add({
+                severity: "error",
+                summary: "Error",
+                detail: "Invalid email or password",
+                life: 3000,
+              });
+            }
           },
           (error) => {
             console.log(error);
           }
         );
-        loginService.loginUser(_req).then((response) => {
-          if (response.data.success) {
-            localStorage.setItem("user", JSON.stringify(response.data.data));
-          }
+      } else {
+        this.$toast.add({
+          severity: "error",
+          summary: "Successful",
+          detail: "Please enter email and password",
+          life: 3000,
         });
       }
     },

@@ -1,6 +1,6 @@
 <template>
   <div class="layout-topbar">
-    <router-link to="/" class="layout-topbar-logo">
+    <router-link to="/WeatherCondition" class="layout-topbar-logo">
       <img alt="Logo" :src="topbarImage()" />
       <span>Weather Condition App</span>
     </router-link>

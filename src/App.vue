@@ -45,19 +45,21 @@ export default {
           label: "Pages",
           icon: "pi pi-fw pi-clone",
           items: [
-            { label: "Login", icon: "pi pi-fw pi-sign-in", to: "/login" },
-
             {
               label: "User Management",
               icon: "pi pi-fw pi-circle-off",
               to: "/user",
-              visible: JSON.parse(localStorage.getItem("user")).isAdmin,
+              visible: JSON.parse(localStorage.getItem("user"))
+                ? JSON.parse(localStorage.getItem("user")).isAdmin
+                : false,
             },
             {
               label: "City Management",
               icon: "pi pi-fw pi-circle-off",
               to: "/city",
-              visible: JSON.parse(localStorage.getItem("user")).isAdmin,
+              visible: JSON.parse(localStorage.getItem("user"))
+                ? JSON.parse(localStorage.getItem("user")).isAdmin
+                : false,
             },
 
             {

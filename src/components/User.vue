@@ -242,6 +242,7 @@ import { FilterMatchMode, FilterOperator } from "primevue/api";
 export default {
   data() {
     return {
+      toast: null,
       user: {
         userId: null,
         firstName: "",
@@ -276,9 +277,6 @@ export default {
   },
   created() {
     this.initFilters1();
-    var data = null;
-
-    console.log(data);
   },
   mounted() {
     userService.getUserList().then((response) => {
@@ -323,18 +321,11 @@ export default {
       this.submitted = false;
     },
     saveUser() {
-      console.log(this.currentUser);
       this.submitted = true;
       if (this.user.firstName) {
         userService.addUser(this.user).then((response) => {
           if (response.data.success) {
             this.users.push(response.data.data);
-            this.$toast.add({
-              severity: "success",
-              summary: "Successful",
-              detail: "User Inserted",
-              life: 3000,
-            });
           }
         });
         this.clear();
@@ -350,8 +341,8 @@ export default {
     },
     onClickUpdateUser() {
       this.submitted = true;
-      var _updateUser = { ...this.updateUser };
       debugger;
+      var _updateUser = { ...this.updateUser };
       if (this.updateUser.firstName) {
         userService.updateUser(this.updateUser).then((response) => {
           if (response.data.success) {
